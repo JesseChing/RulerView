@@ -29,6 +29,8 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     private int scaleWidth; //刻度宽度，单位为px
     private int scaleHeight; //刻度高度，单位为px
 
+    private int currentNumer;
+
     public RulerView(Context context) {
         super(context);
 
@@ -79,13 +81,15 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     private void drawRuler(Canvas canvas) {
 
-        drawRulerTitle(canvas);
-
         drawRulerBody(canvas);
+
+        drawRulerTitle(canvas);
 
     }
 
     private void drawRulerBody(Canvas canvas) {
+        paint.setColor(Color.BLACK);
+
         int start_y = 200;
         int currentX = getWidth() / 2;
         paint.setTextAlign(Paint.Align.CENTER);
@@ -109,6 +113,11 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     }
 
     private void drawRulerTitle(Canvas canvas) {
+        paint.setColor(Color.RED);
+
+        String numberStr = String.valueOf(currentNumer);
+
+
         int start_y = 50;
         int currentX = getWidth() / 2;
         paint.setTextAlign(Paint.Align.CENTER);
@@ -118,9 +127,9 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
         paint.setTextAlign(Paint.Align.CENTER);
         canvas.save();
         canvas.translate(getScrollX(), 0);
-        canvas.drawText("10", currentX + scaleWidth / 2, start_y, paint);
+        canvas.drawText(numberStr, currentX + scaleWidth / 2, start_y, paint);
 
-        Rect rect = new Rect(currentX, start_y + fontHeight, currentX + scaleWidth, start_y + fontHeight + scaleHeight);
+        Rect rect = new Rect(currentX, start_y + fontHeight, currentX + scaleWidth, start_y + fontHeight + scaleHeight + 300);
         canvas.drawRect(rect, paint);
 
         canvas.restore();
@@ -179,10 +188,29 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     @Override
     public void scrollBy(int x, int y) {
-        int temp = getScrollX() + x;
-        Log.d("滚动数据", String.valueOf(temp));
-        if (temp < maxRulerWidth && temp > 0) {
-            super.scrollBy(x, y);
+
+
+
+        int dx = Math.abs(x);
+        int width = scaleSpace + scaleWidth;
+        int modDx =width - dx % width;
+
+
+//        Log.d("scroll dx: dx mod",  x +": % :" + (scaleSpace + scaleWidth));
+
+        if (x > 0) {
+            dx = x + modDx;
+        } else if (x < 0) {
+            dx = x - modDx;
+        }
+
+        int temp = getScrollX() + dx;
+
+//        Log.d("scroll dx:",    x +"::" + dx +"::" + modDx);
+//        Log.d("滚动数据", String.valueOf(temp));
+        if (temp <= maxRulerWidth && temp >= 0) {
+            currentNumer = temp / (scaleSpace + scaleWidth);
+            super.scrollBy(dx, y);
         } else{
             Log.d("最大值", String.valueOf(maxRulerWidth));
         }
