@@ -195,12 +195,9 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
-
-        int diff = (int) (e1.getX() - e2.getX());
-
-//        Log.d("onFling", "velocityX:" + velocityX + "  velocityY:" + velocityY + " diff:" + diff);
         
+//        Log.d("onFling", "velocityX:" + velocityX + "  velocityY:" + velocityY + " diff:" + diff);
+
 
         if (Math.abs(velocityX) > 300) {
             int dx;
