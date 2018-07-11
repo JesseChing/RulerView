@@ -34,6 +34,7 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     private Scroller mScroller;
 
+
     public RulerView(Context context) {
         super(context);
 
@@ -160,7 +161,7 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     @Override
     public boolean onDown(MotionEvent e) {
-        Log.d("手势", "onDown");
+//        Log.d("手势", "onDown");
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
         }
@@ -169,67 +170,48 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     @Override
     public void onShowPress(MotionEvent e) {
-        Log.d("手势", "onShowPress");
+//        Log.d("手势", "onShowPress");
     }
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        Log.d("手势", "onSingleTapUp");
+//        Log.d("手势", "onSingleTapUp");
         return false;
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        Log.d("手势", "onScroll");
+//        Log.d("手势", "onScroll");
         scrollBy((int) distanceX, 0);
-//        mScroller.startScroll(getScrollX(), getScrollY(), (int) distanceX, getScrollY());
-//        invalidate();
 
         return false;
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-        Log.d("手势", "onLongPress");
+//        Log.d("手势", "onLongPress");
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        
-//        Log.d("onFling", "velocityX:" + velocityX + "  velocityY:" + velocityY + " diff:" + diff);
-
 
         if (Math.abs(velocityX) > 300) {
-            int dx;
-            if (velocityX < 0) {
-                if (Math.abs(velocityX) > (maxRulerWidth - getScrollX())) {
-                    dx = maxRulerWidth - getScrollX();
-                } else {
-                    dx = (int) Math.abs(velocityX);
-                }
-            } else {
-                if (Math.abs(velocityX) > getScrollX()) {
-                    dx = -getScrollX();
-                } else {
-                    dx = (int) -velocityX;
-                }
-            }
 
+            mScroller.fling(getScrollX(), getScrollY(),(int)-velocityX,0,0,maxRulerWidth,0,0);
+            Log.d("final X" , mScroller.getFinalX()+"");
 
+            int x = mScroller.getFinalX();
             int width = scaleSpace + scaleWidth;
-            int mod = Math.abs(dx) % width;
+            int mod = Math.abs(x) % width;
             if (mod > 0) {
-                int modDx = width - mod;
-                if (dx > 0) {
-                    dx = dx + modDx;
-                } else if (dx < 0) {
-                    dx = dx - modDx;
+                if (velocityX<0) {
+                    int modDx = width - mod;
+                    x = x + modDx;
+                } else {
+                    x = x - mod;
                 }
             }
-
-            Log.d("onFling", "width:" + width + ", dx:" + dx);
-
-            mScroller.startScroll(getScrollX(), getScrollY(), dx, getScrollY());
+            mScroller.setFinalX(x);
 
             invalidate();
 
@@ -247,9 +229,6 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
         int mod = dx % width;
         int modDx = width - mod;
 
-
-//        Log.d("scroll dx: dx mod",  x +": % :" + (scaleSpace + scaleWidth));
-
         if (mod > 0) {
             if (x > 0) {
                 dx = x + modDx;
@@ -260,8 +239,6 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
         int temp = getScrollX() + dx;
 
-//        Log.d("scroll dx:",    x +"::" + dx +"::" + modDx);
-//        Log.d("滚动数据", String.valueOf(temp));
         if (temp <= maxRulerWidth && temp >= 0) {
             currentNumber = temp / (scaleSpace + scaleWidth);
             super.scrollBy(dx, y);
