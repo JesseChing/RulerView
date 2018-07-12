@@ -164,6 +164,18 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 //        Log.d("手势", "onDown");
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
+            int x = mScroller.getCurrX();
+
+            int width = scaleSpace + scaleWidth;
+            int mod = x % width;
+            int modDx = width - mod;
+
+            if (mod > 0) {
+                x = x + modDx;
+            }
+
+            scrollTo(x,0);
+
         }
         return true;
     }
