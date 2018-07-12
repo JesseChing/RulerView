@@ -173,9 +173,8 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
             if (mod > 0) {
                 x = x + modDx;
             }
-
+            currentNumber = x / width;
             scrollTo(x,0);
-
         }
         return true;
     }
