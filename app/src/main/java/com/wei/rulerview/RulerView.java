@@ -1,16 +1,17 @@
 package com.wei.rulerview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,11 +25,19 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
 
     private int maxNum;
 
-    private int maxRulerWidth;
+    private int maxRulerWidth; //最大宽度
+    private int maxRulerHeight; //最大高度
 
     private int scaleSpace; //刻度间距，单位为px
     private int scaleWidth; //刻度宽度，单位为px
     private int scaleHeight; //刻度高度，单位为px
+
+    private int scaleHeightDiffer; //显示刻度高度差
+
+    private float textSize; //字体大小
+    private int textColor; //字体颜色
+
+    private int fontHeight;
 
     private int currentNumber;
 
@@ -38,34 +47,45 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     public RulerView(Context context) {
         super(context);
 
-        initView();
+        initView(context, null);
     }
 
     public RulerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        initView();
+        initView(context, attrs);
     }
 
     public RulerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        initView();
+        initView(context, attrs);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public RulerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
-        initView();
+        initView(context, attrs);
     }
 
-    private void initView() {
+    private void initView(Context context, AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RulerView);
+            scaleWidth = (int) typedArray.getDimension(R.styleable.RulerView_scaleWidth, 0);
+            scaleHeight = (int) typedArray.getDimension(R.styleable.RulerView_scaleHeight, 0);
+            scaleSpace = (int) typedArray.getDimension(R.styleable.RulerView_scaleSpace, 0);
+            maxNum = typedArray.getInt(R.styleable.RulerView_maxNumber, 0);
+            textSize = typedArray.getDimension(R.styleable.RulerView_textSize, 10);
+            textColor = typedArray.getColor(R.styleable.RulerView_textColor, 0);
+            typedArray.recycle();
+        }
+
         if (paint == null) {
             paint = new Paint();
             paint.setFlags(Paint.ANTI_ALIAS_FLAG);
             paint.setColor(Color.BLACK);
-            paint.setTextSize(30);
+            paint.setTextSize(textSize);
         }
 
         if (mGestureDetector == null) {
@@ -76,15 +96,45 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
             mScroller = new Scroller(getContext());
         }
 
-        maxNum = 150;
+//        maxNum = 150;
 
-        scaleHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getContext().getResources().getDisplayMetrics());
-        scaleWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getContext().getResources().getDisplayMetrics());
-        scaleSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getContext().getResources().getDisplayMetrics());
+//        scaleHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getContext().getResources().getDisplayMetrics());
+//        scaleWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getContext().getResources().getDisplayMetrics());
+//        scaleSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getContext().getResources().getDisplayMetrics());
 
 
         maxRulerWidth = (scaleSpace + scaleWidth) * maxNum;
 
+//        maxRulerHeight = ;
+
+        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+        fontHeight = (int) Math.abs(fontMetrics.bottom - fontMetrics.top);
+
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+//        int width = 0;
+//        int height = 0;
+//
+//        int minWidth = getMinimumWidth();
+//        int minHeight = getMinimumHeight();
+//
+//        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+//        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+//
+//        if (heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST) {
+//            setMeasuredDimension(widthMeasureSpec, 300);
+//        } else {
+//            setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+//        }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
     }
 
     private void drawRuler(Canvas canvas) {
@@ -98,11 +148,10 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     private void drawRulerBody(Canvas canvas) {
         paint.setColor(Color.BLACK);
 
-        int start_y = 200;
+        int start_y = 150;
         int currentX = getWidth() / 2;
         paint.setTextAlign(Paint.Align.CENTER);
-        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-        int fontHeight = (int) Math.abs(fontMetrics.bottom - fontMetrics.top);
+
 
         for (int i = 0; i <= maxNum; i++) {
             Rect rect;
@@ -121,24 +170,32 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     }
 
     private void drawRulerTitle(Canvas canvas) {
-        paint.setColor(Color.RED);
+        paint.setColor(textColor);
 
         String numberStr = String.valueOf(currentNumber);
 
 
-        int start_y = 50;
+        int start_y = 0;
         int currentX = getWidth() / 2;
         paint.setTextAlign(Paint.Align.CENTER);
-        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-        int fontHeight = (int) Math.abs(fontMetrics.bottom - fontMetrics.top);
 
         paint.setTextAlign(Paint.Align.CENTER);
         canvas.save();
         canvas.translate(getScrollX(), 0);
-        canvas.drawText(numberStr, currentX + scaleWidth / 2, start_y, paint);
+        canvas.drawText(numberStr, currentX + scaleWidth / 2, start_y + fontHeight, paint);
 
-        Rect rect = new Rect(currentX, start_y + fontHeight, currentX + scaleWidth, start_y + fontHeight + scaleHeight + 300);
-        canvas.drawRect(rect, paint);
+//        Rect rect = new Rect(currentX, start_y + fontHeight, currentX + scaleWidth, start_y + fontHeight + scaleHeight + 300);
+//        canvas.drawRect(rect, paint);
+
+        /**
+         * 绘制顶部的三角标
+         */
+        Path path = new Path();
+        path.moveTo(currentX, start_y + fontHeight + 20);
+        path.lineTo(currentX + scaleWidth, start_y + fontHeight + 20);
+        path.lineTo(currentX + (scaleWidth / 2), start_y + fontHeight + 60);
+        path.close();
+        canvas.drawPath(path, paint);
 
         canvas.restore();
 
@@ -148,9 +205,10 @@ public class RulerView extends View implements GestureDetector.OnGestureListener
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        canvas.save();
+        canvas.translate(getPaddingLeft(), getPaddingTop());
         drawRuler(canvas);
-
+        canvas.restore();
     }
 
 

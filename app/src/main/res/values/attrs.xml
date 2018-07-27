@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RulerView" >
+
+        <!--刻度间距-->
+        <attr name="scaleSpace" format="dimension" />
+
+        <!--刻度宽度-->
+        <attr name="scaleWidth" format="dimension" />
+
+        <!--刻度高度-->
+        <attr name="scaleHeight" format="dimension" />
+
+        <!--最大刻度-->
+        <attr name="maxNumber" format="integer" />
+
+        <!--字体大小-->
+        <attr name="textSize" format="dimension|reference" />
+
+        <!--字体颜色-->
+        <attr name="textColor" format="color|reference"/>
+    </declare-styleable>
+</resources>
